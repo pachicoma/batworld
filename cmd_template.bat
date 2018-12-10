@@ -4,14 +4,14 @@ REM ######################################################################
 REM # [Description]
 REM #  please write this batch script description...
 REM # 
-REM # [Usage]
-REM #  BATNAME [/?]
-REM # 
+REM # [Version] 0.01
+REM # [Usage]   %~nx0 [/?]
 REM # [Params]
 REM #   %1      : 
 REM # 
 REM # [Options]
-REM #   /?      : Show Command Help
+REM #   /?      : Show command help
+REM #   /V      : Show command version
 REM # 
 REM ######################################################################
 REM =================================================================
@@ -43,7 +43,9 @@ set ParamTemp=%~1
 set OptType=%ParamTemp:~1,1%
 if "%ParamTemp:~0,1%"=="/" (
     if "%OptType%"=="?" (
-        goto :USAGE
+        goto :SHOW_HELP
+    ) else if "%OptType%"=="V" (
+        goto :SHOW_VERSION
     ) else (
         set ERROR_MSG='%OptType%' is Unknown Option
         goto :ERROR_HELP_EXIT
@@ -93,8 +95,14 @@ REM Sub Process
 REM =================================================================
 REM  Print usage and exit
 REM ------------------------------------------------------------
-:USAGE
-call :SHOW_HELP
+:SHOW_HELP
+call :PRINT_HELP
+goto :EXIT_SUCCESS
+
+REM  Print usage and exit
+REM ------------------------------------------------------------
+:SHOW_VERSION
+call :PRINT_VERSION
 goto :EXIT_SUCCESS
 
 REM  Print message and help and exit
@@ -102,23 +110,36 @@ REM ------------------------------------------------------------
 :ERROR_HELP_EXIT
 echo %ERROR_MSG%
 echo.
-call :SHOW_HELP
+call :PRINT_HELP
 goto :EXIT_FAILD
 
 REM =================================================================
 REM Common Functions (only used by this command)
 REM =================================================================
 REM ------------------------------------------------------------
-REM - Name  ) SHOW_HELP
+REM - Name  ) PRINT_HELP
 REM - Desc  ) Show Help this command. 
 REM -         Print only start of line is "REM # " in this file
-REM - Usage ) call :SHOW_HELP
+REM - Usage ) call :PRINT_HELP
 REM ------------------------------------------------------------
-:SHOW_HELP
-for /f "tokens=2*delims=#" %%a in ('findstr /b /c:"REM # " ^<%~nx0') do (
+:PRINT_HELP
+for /f "tokens=2* delims=#" %%a in ('findstr /b /c:"REM # " ^<%~nx0') do (
     set lineText=%%a
-    set lineText=!lineText:BATNAME=%~nx0!
+    REM replace batch filename
+    set lineText=!lineText:%%~nx0=%~nx0!
     echo.!lineText!
+)
+exit /b
+
+REM ------------------------------------------------------------
+REM - Name  ) PRINT_VERSION
+REM - Desc  ) Show Help this command. 
+REM -         Print only start of line is "REM # [Version]" in this file
+REM - Usage ) call :PRINT_VERSION
+REM ------------------------------------------------------------
+:PRINT_VERSION
+for /f "tokens=4* delims= " %%a in ('findstr /b /c:"REM # [Version]" ^<%~nx0') do (
+    echo %%a
 )
 exit /b
 
