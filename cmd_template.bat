@@ -12,6 +12,7 @@ REM #
 REM # [OPTIONS]
 REM #   /?      : Show command help
 REM #   /V      : Show command version
+REM #   /U      : Set output encode 'UTF8'
 REM # 
 REM ###########################################################################
 REM ======================================================================
@@ -20,7 +21,8 @@ REM ======================================================================
 REM  lib path append to %PATH%
 REM ----------------------------------------
 set PATH=%~dp0lib;%PATH%
-REM  set debug mode
+
+REM  if set 1, enable debug mode
 REM ----------------------------------------
 set DEBUG_MODE=1
 
@@ -46,6 +48,9 @@ if "%ParamTemp:~0,1%"=="/" (
         goto :SHOW_HELP
     ) else if "%OptType%"=="V" (
         goto :SHOW_VERSION
+    ) else if "%OptType%"=="U" (
+        REM set code page UTF8
+        chcp 65001 >nul
     ) else (
         set ERROR_MSG='%OptType%' is Unknown Option
         goto :ERROR_HELP_EXIT
@@ -64,8 +69,8 @@ if "%~1"=="" (
 ) else (
     REM given param
     call :DebugMsg DebugMsg ParamTemp
-    call :AssertOK AssertOK ParamTemp hello
-    call :AssertNG AssertNG ParamTemp goodbye
+    call :AssertOK AssertOK ParamTemp OK
+    call :AssertNG AssertNG ParamTemp NG
 )
 
 
@@ -166,7 +171,7 @@ REM ----------------------------------------------------------------------
 REM - NAME   ) AssertOK
 REM - DESC   ) Assertion when debug mode
 REM -          if when not %2==%3, print value and pause
-REM - USAGE  ) call :AssertOK Msg VarName ExpectOKVal
+REM - USAGE  ) call :AssertOK Msg VarName ExpectVal
 REM - IN/OUT )
 REM -  IN   %1  : assert message
 REM -  IN   %2  : variable name
@@ -176,7 +181,7 @@ REM ----------------------------------------------------------------------
 :AssertOK
 if "%DEBUG_MODE%"=="1" (
     if not "!%2!"=="%~3" (
-        echo [%1] %2:"!%2!" is not "%~3" >&2
+        echo [%1] %2:"!%2!", vs "%~3" >&2
         REM echo continue press any key
         pause >nul
     )
@@ -187,7 +192,7 @@ REM ----------------------------------------------------------------------
 REM - NAME   ) AssertNG
 REM - DESC   ) Assertion when debug mode
 REM -          if when %2==%3, print value and pause
-REM - USAGE  ) call :AssertNG Msg VarName ExpectNGVal
+REM - USAGE  ) call :AssertNG Msg VarName ExpectVal
 REM - IN/OUT )
 REM -  IN   %1  : assert message
 REM -  IN   %2  : variable name
@@ -197,7 +202,7 @@ REM ----------------------------------------------------------------------
 :AssertNG
 if "%DEBUG_MODE%"=="1" (
     if "!%2!"=="%~3" (
-        echo [%1] %2:"!%2!" is "%~3" >&2
+        echo [%1] %2:"!%2!" !vs "%~3" >&2
         REM echo continue press any key
         pause >nul
     )
