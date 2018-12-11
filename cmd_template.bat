@@ -1,42 +1,42 @@
 @echo off
 setlocal enabledelayedexpansion
-REM ######################################################################
-REM # [Description]
+REM ###########################################################################
+REM # [DESCRIPTION]
 REM #  please write this batch script description...
 REM # 
-REM # [Version] 0.01
-REM # [Usage]   %~nx0 [/?]
-REM # [Params]
+REM # [VERSION] 0.01
+REM # [USAGE]   %~nx0 [/?]
+REM # [PARAMS]
 REM #   %1      : 
 REM # 
-REM # [Options]
+REM # [OPTIONS]
 REM #   /?      : Show command help
 REM #   /V      : Show command version
 REM # 
-REM ######################################################################
-REM =================================================================
-REM Enviroment Configs
-REM =================================================================
+REM ###########################################################################
+REM ======================================================================
+REM = Enviroment Configs
+REM ======================================================================
 REM  lib path append to %PATH%
-REM ------------------------------------------------------------
+REM ----------------------------------------
 set PATH=%~dp0lib;%PATH%
 REM  set debug mode
-REM ------------------------------------------------------------
+REM ----------------------------------------
 set DEBUG_MODE=1
 
-REM =================================================================
-REM Initial Process
-REM =================================================================
+REM ======================================================================
+REM = Initial Process
+REM ======================================================================
 :INIT_PROCESS
 set ERROR_MSG=""
 
 
-REM =================================================================
-REM Check Params 
-REM =================================================================
-REM ------------------------------------------------------------
+REM ======================================================================
+REM = Check Command Params 
+REM ======================================================================
 REM  Options
-REM ------------------------------------------------------------
+REM ----------------------------------------
+set PATH=%~dp0lib;%PATH%
 :ANALYZE_OPTIONS
 if "%~1"=="" goto :ANALYZE_PARAMS
 set ParamTemp=%~1
@@ -54,9 +54,8 @@ if "%ParamTemp:~0,1%"=="/" (
     goto :ANALYZE_OPTIONS
 )
 
-REM ------------------------------------------------------------
 REM  Params
-REM ------------------------------------------------------------
+REM ----------------------------------------
 :ANALYZE_PARAMS
 if "%~1"=="" (
     REM no given param
@@ -64,65 +63,67 @@ if "%~1"=="" (
     goto :ERROR_HELP_EXIT
 ) else (
     REM given param
-    call :DEBUG_MSG Param1 ParamTemp
+    call :DebugMsg DebugMsg ParamTemp
+    call :AssertOK AssertOK ParamTemp hello
+    call :AssertNG AssertNG ParamTemp goodbye
 )
 
 
-REM =================================================================
-REM Main Process
-REM =================================================================
+REM ======================================================================
+REM = Main Process
+REM ======================================================================
 :MAIN_PROCESS
 
 
-REM =================================================================
-REM Exit Process
-REM =================================================================
+REM ======================================================================
+REM = Exit Process
+REM ======================================================================
 REM  Success Process Exit
-REM ------------------------------------------------------------
+REM ----------------------------------------
 :EXIT_SUCCESS
 endlocal
 exit /b 0
 
 REM  Faild Process Exit
-REM ------------------------------------------------------------
+REM ----------------------------------------
 :EXIT_FAILD
 endlocal
 exit /b 1
 
 
-REM =================================================================
-REM Sub Process
-REM =================================================================
+REM ======================================================================
+REM = Sub Process
+REM ======================================================================
 REM  Print usage and exit
-REM ------------------------------------------------------------
+REM ----------------------------------------
 :SHOW_HELP
-call :PRINT_HELP
+call :PrintHelp
 goto :EXIT_SUCCESS
 
 REM  Print usage and exit
-REM ------------------------------------------------------------
+REM ----------------------------------------
 :SHOW_VERSION
-call :PRINT_VERSION
+call :PrintVersion
 goto :EXIT_SUCCESS
 
 REM  Print message and help and exit
-REM ------------------------------------------------------------
+REM ----------------------------------------
 :ERROR_HELP_EXIT
 echo %ERROR_MSG%
 echo.
-call :PRINT_HELP
+call :PrintHelp
 goto :EXIT_FAILD
 
-REM =================================================================
-REM Common Functions (only used by this command)
-REM =================================================================
-REM ------------------------------------------------------------
-REM - Name  ) PRINT_HELP
-REM - Desc  ) Show Help this command. 
-REM -         Print only start of line is "REM # " in this file
-REM - Usage ) call :PRINT_HELP
-REM ------------------------------------------------------------
-:PRINT_HELP
+REM ======================================================================
+REM = Common Functions (only used by this command)
+REM ======================================================================
+REM ----------------------------------------------------------------------
+REM - NAME   ) PrintHelp
+REM - DESC   ) Print Help this command. 
+REM -          Print only start of line is "REM # " in this file
+REM - USAGE  ) call :PrintHelp
+REM ----------------------------------------------------------------------
+:PrintHelp
 for /f "tokens=2* delims=#" %%a in ('findstr /b /c:"REM # " ^<%~nx0') do (
     set lineText=%%a
     REM replace batch filename
@@ -131,26 +132,27 @@ for /f "tokens=2* delims=#" %%a in ('findstr /b /c:"REM # " ^<%~nx0') do (
 )
 exit /b
 
-REM ------------------------------------------------------------
-REM - Name  ) PRINT_VERSION
-REM - Desc  ) Show Help this command. 
-REM -         Print only start of line is "REM # [Version]" in this file
-REM - Usage ) call :PRINT_VERSION
-REM ------------------------------------------------------------
-:PRINT_VERSION
-for /f "tokens=4* delims= " %%a in ('findstr /b /c:"REM # [Version]" ^<%~nx0') do (
+REM ----------------------------------------------------------------------
+REM - NAME   ) PrintVersion
+REM - DESC   ) Print Version this command. 
+REM -          Print only start of line is "REM # [VERSION]" in this file
+REM - USAGE  ) call :PRINT_VERSION
+REM ----------------------------------------------------------------------
+:PrintVersion
+for /f "tokens=4* delims= " %%a in ('findstr /b /c:"REM # [VERSION]" ^<%~nx0') do (
     echo %%a
 )
 exit /b
 
-REM ------------------------------------------------------------
-REM - Name  ) DEBUG_MSG
-REM - Desc  ) Echo "VarName:VarValue" when only debug mode
-REM - Usage ) call :DEBUG_MSG [DebugMsg] VarName
-REM -   %1  ) debug message or variable name
-REM -  [%2] ) variable name (only given debug message for %1) 
-REM ------------------------------------------------------------
-:DEBUG_MSG
+REM ----------------------------------------------------------------------
+REM - NAME   ) DebugMsg
+REM - DESC   ) Print "VarName:VarValue" when only debug mode
+REM - USAGE  ) call :DebugMsg [DebugMsg] VarName
+REM - IN/OUT )
+REM -  IN  [%1] : debug message
+REM -  IN   %2  : variable name
+REM ----------------------------------------------------------------------
+:DebugMsg
 if "%DEBUG_MODE%"=="1" (
     if "%~2"=="" (
         echo %1:!%1! >&2
@@ -160,16 +162,18 @@ if "%DEBUG_MODE%"=="1" (
 )
 exit /b
 
-REM ------------------------------------------------------------
-REM - Name  ) ASSERT_OK
-REM - Desc  ) Assertion when debug mode
-REM -         if when not %2==%3, print value and pause
-REM - Usage ) call :ASSERT_OK Message VarName ExpectOKVal
-REM -   %1  ) assert message
-REM -   %2  ) variable name
-REM -   %3  ) expect success value
-REM ------------------------------------------------------------
-:ASSERT_OK
+REM ----------------------------------------------------------------------
+REM - NAME   ) AssertOK
+REM - DESC   ) Assertion when debug mode
+REM -          if when not %2==%3, print value and pause
+REM - USAGE  ) call :AssertOK Msg VarName ExpectOKVal
+REM - IN/OUT )
+REM -  IN   %1  : assert message
+REM -  IN   %2  : variable name
+REM -  IN   %3  : expect success value
+REM -             if not match print msg and pause process
+REM ----------------------------------------------------------------------
+:AssertOK
 if "%DEBUG_MODE%"=="1" (
     if not "!%2!"=="%~3" (
         echo [%1] %2:"!%2!" is not "%~3" >&2
@@ -179,16 +183,18 @@ if "%DEBUG_MODE%"=="1" (
 )
 exit /b
 
-REM ------------------------------------------------------------
-REM - Name  ) ASSERT_NG
-REM - Desc  ) Assertion when debug mode
-REM - if when %2==%3, print value and pause
-REM - Usage ) call :ASSERT_NG Message VarName ExpectNGVal
-REM -   %1  ) assert message
-REM -   %2  ) variable name
-REM -   %3  ) expect error value
-REM ------------------------------------------------------------
-:ASSERT_NG
+REM ----------------------------------------------------------------------
+REM - NAME   ) AssertNG
+REM - DESC   ) Assertion when debug mode
+REM -          if when %2==%3, print value and pause
+REM - USAGE  ) call :AssertNG Msg VarName ExpectNGVal
+REM - IN/OUT )
+REM -  IN   %1  : assert message
+REM -  IN   %2  : variable name
+REM -  IN   %3  : expect error value
+REM -             if match print msg and pause process
+REM ----------------------------------------------------------------------
+:AssertNG
 if "%DEBUG_MODE%"=="1" (
     if "!%2!"=="%~3" (
         echo [%1] %2:"!%2!" is "%~3" >&2
