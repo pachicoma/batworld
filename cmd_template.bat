@@ -64,7 +64,7 @@ if "%~1"=="" (
     goto :ERROR_HELP_EXIT
 ) else (
     REM given param
-    call :DEBUG_ECHO Param1 ParamTemp
+    call :DEBUG_MSG Param1 ParamTemp
 )
 
 
@@ -144,18 +144,18 @@ for /f "tokens=4* delims= " %%a in ('findstr /b /c:"REM # [Version]" ^<%~nx0') d
 exit /b
 
 REM ------------------------------------------------------------
-REM - Name  ) DEBUG_ECHO
+REM - Name  ) DEBUG_MSG
 REM - Desc  ) Echo "VarName:VarValue" when only debug mode
-REM - Usage ) call :DEBUG_ECHO [DebugMsg] VarName
+REM - Usage ) call :DEBUG_MSG [DebugMsg] VarName
 REM -   %1  ) debug message or variable name
 REM -  [%2] ) variable name (only given debug message for %1) 
 REM ------------------------------------------------------------
-:DEBUG_ECHO
+:DEBUG_MSG
 if "%DEBUG_MODE%"=="1" (
     if "%~2"=="" (
-        echo %1:!%1!
+        echo %1:!%1! >&2
     ) else (
-        echo [%1] %2:!%2!
+        echo [%1] %2:!%2! >&2
     )
 )
 exit /b
@@ -172,7 +172,7 @@ REM ------------------------------------------------------------
 :ASSERT_OK
 if "%DEBUG_MODE%"=="1" (
     if not "!%2!"=="%~3" (
-        echo [%1] %2:"!%2!" is not "%~3"
+        echo [%1] %2:"!%2!" is not "%~3" >&2
         REM echo continue press any key
         pause >nul
     )
@@ -191,7 +191,7 @@ REM ------------------------------------------------------------
 :ASSERT_NG
 if "%DEBUG_MODE%"=="1" (
     if "!%2!"=="%~3" (
-        echo [%1] %2:"!%2!" is "%~3"
+        echo [%1] %2:"!%2!" is "%~3" >&2
         REM echo continue press any key
         pause >nul
     )
