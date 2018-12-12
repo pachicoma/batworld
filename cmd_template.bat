@@ -68,9 +68,9 @@ if "%~1"=="" (
     goto :ERROR_HELP_EXIT
 ) else (
     REM given param
-    call :DebugMsg DebugMsg ParamTemp
-    call :AssertOK AssertOK ParamTemp OK
-    call :AssertNG AssertNG ParamTemp NG
+    call DebugMsg DebugMsg ParamTemp
+    call AssertOK AssertOK ParamTemp OK
+    call AssertNG AssertNG ParamTemp NG
 )
 
 
@@ -146,65 +146,5 @@ REM ----------------------------------------------------------------------
 :PrintVersion
 for /f "tokens=4* delims= " %%a in ('findstr /b /c:"REM # [VERSION]" ^<%~nx0') do (
     echo %%a
-)
-exit /b
-
-REM ----------------------------------------------------------------------
-REM - NAME   ) DebugMsg
-REM - DESC   ) Print "VarName:VarValue" when only debug mode
-REM - USAGE  ) call :DebugMsg [DebugMsg] VarName
-REM - IN/OUT )
-REM -  IN  [%1] : debug message
-REM -  IN   %2  : variable name
-REM ----------------------------------------------------------------------
-:DebugMsg
-if "%DEBUG_MODE%"=="1" (
-    if "%~2"=="" (
-        echo %1:!%1! >&2
-    ) else (
-        echo [%1] %2:!%2! >&2
-    )
-)
-exit /b
-
-REM ----------------------------------------------------------------------
-REM - NAME   ) AssertOK
-REM - DESC   ) Assertion when debug mode
-REM -          if when not %2==%3, print value and pause
-REM - USAGE  ) call :AssertOK Msg VarName ExpectVal
-REM - IN/OUT )
-REM -  IN   %1  : assert message
-REM -  IN   %2  : variable name
-REM -  IN   %3  : expect success value
-REM -             if not match print msg and pause process
-REM ----------------------------------------------------------------------
-:AssertOK
-if "%DEBUG_MODE%"=="1" (
-    if not "!%2!"=="%~3" (
-        echo [%1] %2:"!%2!", vs "%~3" >&2
-        REM echo continue press any key
-        pause >nul
-    )
-)
-exit /b
-
-REM ----------------------------------------------------------------------
-REM - NAME   ) AssertNG
-REM - DESC   ) Assertion when debug mode
-REM -          if when %2==%3, print value and pause
-REM - USAGE  ) call :AssertNG Msg VarName ExpectVal
-REM - IN/OUT )
-REM -  IN   %1  : assert message
-REM -  IN   %2  : variable name
-REM -  IN   %3  : expect error value
-REM -             if match print msg and pause process
-REM ----------------------------------------------------------------------
-:AssertNG
-if "%DEBUG_MODE%"=="1" (
-    if "!%2!"=="%~3" (
-        echo [%1] %2:"!%2!" !vs "%~3" >&2
-        REM echo continue press any key
-        pause >nul
-    )
 )
 exit /b
